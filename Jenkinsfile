@@ -1,51 +1,46 @@
-pipeline{
+pipeline {
     agent any
-    tools{
+    tools {
         jdk "java-11"
         maven "maven"
     }
-    stages{
-        stage('Git-Checkout'){
-            steps{
-                git branch: 'main', url: ''
+    stages {
+        stage('Git Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/Bhoomikaas/microp.git'
+            }
         }
-        }
-        stage('compile'){
-            steps{
+        stage('Compile') {
+            steps {
                 sh 'mvn compile'
             }
         }
-        stage('package'){
-            steps{
+        stage('Package') {
+            steps {
                 sh 'mvn clean install'
             }
         }
-        stage('docker build'){
-            steps{
-                docker build -t bhoomikaas/app .
+        stage('Docker Build') {
+            steps {
+                sh "docker build -t ${IMAGE_NAME} ."
             }
         }
-        stage('containerization'){
-            steps{
-                sh ...
-                docker run -it -d --name c1 -p 9000:80 bhoomikaas/app .
-                ...
+        stage('Containerization') {
+            steps {
+                sh "docker run -it -d --name c1 -p 9000:80 ${IMAGE_NAME}"
             }
         }
-        stage('Login to Docker Hub')
-        {
-            steps{
-                script{
-                    withCredential([usernamePassword(CredentialId: 'docker-hub-credntial', username Variable: 'DOCKER_USERNAME', 
-                    sh "echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin")])
+        stage('Login to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-credential', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
                 }
             }
+        }
+        stage('Pushing Image to Repository') {
+            steps {
+                sh "docker push ${IMAGE_NAME}"
             }
-            }
-            stage('pushing image to repository'){
-                steps{
-                    sh 'docker push bhoomikaas/app'
-                }
-            }     
+        }
     }
 }
