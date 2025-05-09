@@ -22,12 +22,12 @@ pipeline {
         }
         stage('Docker Build') {
             steps {
-                sh "docker build -t npic1.jfif}."
+                sh "docker build -t bhoomikaas/npic1:latest ."
             }
         }
         stage('Containerization') {
             steps {
-                sh "docker run -it -d --name c1 -p 9000:80 ${IMAGE_NAME}"
+                sh "docker run -it -d --name c1 -p 9000:80 bhoomikaas/npic1:latest"
             }
         }
         stage('Login to Docker Hub') {
@@ -39,7 +39,7 @@ pipeline {
         }
         stage('Pushing Image to Repository') {
             steps {
-                sh "docker push ${IMAGE_NAME}"
+                sh "docker push bhoomikaas/npic1:latest"
             }
         }
     }
